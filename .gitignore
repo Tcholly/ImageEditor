@@ -1,0 +1,6 @@
+.cache/
+bin/
+obj/
+compile_commands.json
+ImageEditor.make
+Makefile

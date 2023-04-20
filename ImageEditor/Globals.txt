@@ -1,0 +1,13 @@
+Colors
+{
+	BACKGROUND : color : #FF505050;
+
+	MENU_BACKGROUND : color : #fffaf4ed;
+	MENU_OUTLINE    : color : #ff286983;
+	MENU_HOVER      : color : #ffd7827e;
+	MENU_TEXT       : color : #ff575279;
+	MENU_TEXT_HOVER : color : #fffaf4ed;
+
+	PIECE_OUTLINE          : color : #ffa462ff;
+	SELECTED_PIECE_OUTLINE : color : #ffb4a1ff;
+}
