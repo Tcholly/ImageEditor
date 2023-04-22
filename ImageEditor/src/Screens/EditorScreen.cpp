@@ -382,12 +382,10 @@ namespace EditorScreen
 		return true;
 	}
 
-	float Vector2LengthSqrHandleZero(Vector2 v)
+	float GetCollidingArea(Rectangle rect_1, Rectangle rect_2)
 	{
-		if (v.x == 0.0f && v.y == 0.0f)
-			return 0.0f;
-
-		return Vector2LengthSqr(v);
+		Rectangle collision = GetCollisionRec(rect_1, rect_2);
+		return collision.width * collision.height;
 	}
 
 	// Binds the pieces position-wise but keeps them separated
@@ -402,39 +400,74 @@ namespace EditorScreen
 		second_bounds.x += second.first_piece_pos.x;
 		second_bounds.y += second.first_piece_pos.y;
 
+		bool should_bind = true;
 		if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT))
 		{
-			Vector2 tl_2_tr_offset = Vector2Subtract({second_bounds.x, second_bounds.y}, {first_bounds.x + first_bounds.width, first_bounds.y}); 
-			Vector2 tl_2_bl_offset = Vector2Subtract({second_bounds.x, second_bounds.y}, {first_bounds.x, first_bounds.y + first_bounds.height}); 
-			Vector2 tr_2_tl_offset = Vector2Subtract({second_bounds.x + second_bounds.width, second_bounds.y}, {first_bounds.x, first_bounds.y}); 
-			Vector2 tr_2_br_offset = Vector2Subtract({second_bounds.x + second_bounds.width, second_bounds.y}, {first_bounds.x + first_bounds.width, first_bounds.y + first_bounds.height}); 
-			Vector2 bl_2_tl_offset = Vector2Subtract({second_bounds.x, second_bounds.y + second_bounds.height}, {first_bounds.x, first_bounds.y}); 
-			Vector2 bl_2_br_offset = Vector2Subtract({second_bounds.x, second_bounds.y + second_bounds.height}, {first_bounds.x + first_bounds.width, first_bounds.y + first_bounds.height}); 
-			Vector2 br_2_tr_offset = Vector2Subtract({second_bounds.x + second_bounds.width, second_bounds.y + second_bounds.height}, {first_bounds.x + first_bounds.width, first_bounds.y}); 
-			Vector2 br_2_bl_offset = Vector2Subtract({second_bounds.x + second_bounds.width, second_bounds.y + second_bounds.height}, {first_bounds.x, first_bounds.y + first_bounds.height}); 
+			std::map<float, Rectangle> snap_rects;
 
-			std::map<float, Vector2> offssets;
-			offssets[Vector2LengthSqrHandleZero(tl_2_tr_offset)] = tl_2_tr_offset;
-			offssets[Vector2LengthSqrHandleZero(tl_2_bl_offset)] = tl_2_bl_offset;
-			offssets[Vector2LengthSqrHandleZero(tr_2_tl_offset)] = tr_2_tl_offset;
-			offssets[Vector2LengthSqrHandleZero(tr_2_br_offset)] = tr_2_br_offset;
-			offssets[Vector2LengthSqrHandleZero(bl_2_tl_offset)] = bl_2_tl_offset;
-			offssets[Vector2LengthSqrHandleZero(bl_2_br_offset)] = bl_2_br_offset;
-			offssets[Vector2LengthSqrHandleZero(br_2_tr_offset)] = br_2_tr_offset;
-			offssets[Vector2LengthSqrHandleZero(br_2_bl_offset)] = br_2_bl_offset;
+			Rectangle rect_tl = second_bounds;
+			rect_tl.x = first_bounds.x;
+			rect_tl.y = first_bounds.y - rect_tl.height;
 
-			Vector2 min_offset = {MAXFLOAT, MAXFLOAT};
-			float min_length = MAXFLOAT;
-			for (auto& [length, offset] : offssets)
+			Rectangle rect_tr = second_bounds;
+			rect_tr.x = first_bounds.x + first_bounds.width - rect_tr.width;
+			rect_tr.y = first_bounds.y - rect_tr.height;
+
+			Rectangle rect_rt = second_bounds;
+			rect_rt.x = first_bounds.x + first_bounds.width;
+			rect_rt.y = first_bounds.y;
+
+			Rectangle rect_rb = second_bounds;
+			rect_rb.x = first_bounds.x + first_bounds.width;
+			rect_rb.y = first_bounds.y + first_bounds.height - rect_rb.height;
+
+			Rectangle rect_br = second_bounds;
+			rect_br.x = first_bounds.x + first_bounds.width - rect_br.width;
+			rect_br.y = first_bounds.y + first_bounds.height;
+
+			Rectangle rect_bl = second_bounds;
+			rect_bl.x = first_bounds.x;
+			rect_bl.y = first_bounds.y + first_bounds.height;
+
+			Rectangle rect_lb = second_bounds;
+			rect_lb.x = first_bounds.x - rect_lb.width;
+			rect_lb.y = first_bounds.y + first_bounds.height - rect_lb.height;
+
+			Rectangle rect_lt = second_bounds;
+			rect_lt.x = first_bounds.x - rect_lt.width;
+			rect_lt.y = first_bounds.y;
+
+			snap_rects[GetCollidingArea(second_bounds, rect_tl)] = rect_tl;
+			snap_rects[GetCollidingArea(second_bounds, rect_tr)] = rect_tr;
+			snap_rects[GetCollidingArea(second_bounds, rect_rt)] = rect_rt;
+			snap_rects[GetCollidingArea(second_bounds, rect_rb)] = rect_rb;
+			snap_rects[GetCollidingArea(second_bounds, rect_br)] = rect_br;
+			snap_rects[GetCollidingArea(second_bounds, rect_bl)] = rect_bl;
+			snap_rects[GetCollidingArea(second_bounds, rect_lb)] = rect_lb;
+			snap_rects[GetCollidingArea(second_bounds, rect_lt)] = rect_lt;
+
+			float max_area = 0.0f;
+			Rectangle final_rect;
+			for (auto& [area, rect] : snap_rects)
 			{
-				if (length < min_length)
-					min_length = length;
-				min_offset = offset;
+				if (area > max_area)
+				{
+					max_area = area;
+					final_rect = rect;
+				}
 			}
-			second.first_piece_pos.x -= min_offset.x;
-			second.first_piece_pos.y -= min_offset.y;
+
+			if (max_area > 0.0f)
+			{
+				Vector2 offset = Vector2Subtract({final_rect.x, final_rect.y}, {second_bounds.x, second_bounds.y});
+
+				second.first_piece_pos.x += offset.x;
+				second.first_piece_pos.y += offset.y;
+
+				should_bind = false;
+			}
 		}
-		else 
+		else if (should_bind)
 		{
 			if (second_bounds.x > first_bounds.x + first_bounds.width)
 				second.first_piece_pos.x -= second_bounds.x - first_bounds.x - first_bounds.width;
