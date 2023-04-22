@@ -22,5 +22,4 @@ And you're ready to go.
 For linux it should work fine, for other operating system you just need to change the dependencies to your os specific lib file.
 
 ## TODO-list
-[ ] Add the ability to snap when conbining two pieces (In progress)
-[ ] ??
+[] ??
