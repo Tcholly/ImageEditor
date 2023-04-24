@@ -45,23 +45,23 @@ namespace AskConfirmLayer
 
 	static void Render()
 	{
-		Color cancel_color = BLUE;
-		Color confirm_color = BLUE;
+		Color cancel_color = Colors::BUTTON_NORMAL;
+		Color confirm_color = Colors::BUTTON_NORMAL;
 
 		Vector2 mouse_pos = GetMousePosition();
 
 		if (CheckCollisionPointRec(mouse_pos, cancel))
-			cancel_color = GRAY;
+			cancel_color = Colors::BUTTON_HOVER;
 		else if (CheckCollisionPointRec(mouse_pos, confirm))
-			confirm_color = GRAY;
+			confirm_color = Colors::BUTTON_HOVER;
 
 		DrawRectangleRec(cancel, cancel_color);
 		DrawRectangleRec(confirm, confirm_color);
 		
 		Vector2 cancel_text_size = MeasureTextEx(GetFontDefault(), "cancel", 30, 3.0f);
-		DrawText("cancel", (int)cancel.x + (int)cancel.width / 2 - (int)cancel_text_size.x / 2, (int)cancel.y + (int)cancel.height / 2 - (int)cancel_text_size.y / 2, 30, WHITE);
+		DrawText("cancel", (int)cancel.x + (int)cancel.width / 2 - (int)cancel_text_size.x / 2, (int)cancel.y + (int)cancel.height / 2 - (int)cancel_text_size.y / 2, 30, Colors::BUTTON_TEXT);
 		Vector2 confirm_text_size = MeasureTextEx(GetFontDefault(), "confirm", 30, 3.0f);
-		DrawText("confirm", (int)confirm.x + (int)confirm.width / 2 - (int)confirm_text_size.x / 2, (int)confirm.y + confirm.height / 2 - (int)confirm_text_size.y / 2, 30, WHITE);
+		DrawText("confirm", (int)confirm.x + (int)confirm.width / 2 - (int)confirm_text_size.x / 2, (int)confirm.y + confirm.height / 2 - (int)confirm_text_size.y / 2, 30, Colors::BUTTON_TEXT);
 	}
 
 	static void OnResize(int _width, int _height)

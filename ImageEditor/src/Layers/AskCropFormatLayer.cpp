@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 
 #include "Variables.h"
+#include "Globals.hpp"
 
 namespace AskCropFormatLayer
 {
@@ -40,22 +41,22 @@ namespace AskCropFormatLayer
 
 	static void Render()
 	{
-		DrawRectangle(0, 0, width, height, RED);
+		DrawRectangle(0, 0, width, height, Colors::DIALOG_BACKGROUND);
 
-		Color plus_x_color = BLUE;
-		Color minus_x_color = BLUE;
-		Color plus_y_color = BLUE;
-		Color minus_y_color = BLUE;
+		Color plus_x_color = Colors::BUTTON_NORMAL;
+		Color minus_x_color = Colors::BUTTON_NORMAL;
+		Color plus_y_color = Colors::BUTTON_NORMAL;
+		Color minus_y_color = Colors::BUTTON_NORMAL;
 
 		Vector2 mouse_pos = GetMousePosition();
 		if (CheckCollisionPointRec(mouse_pos, plus_x))
-			plus_x_color = GRAY;
+			plus_x_color = Colors::BUTTON_HOVER;
 		else if (CheckCollisionPointRec(mouse_pos, minus_x))
-			minus_x_color = GRAY;
+			minus_x_color = Colors::BUTTON_HOVER;
 		else if (CheckCollisionPointRec(mouse_pos, plus_y))
-			plus_y_color = GRAY;
+			plus_y_color = Colors::BUTTON_HOVER;
 		else if (CheckCollisionPointRec(mouse_pos, minus_y))
-			minus_y_color = GRAY;
+			minus_y_color = Colors::BUTTON_HOVER;
 
 		DrawRectangleRec(plus_x, plus_x_color);
 		DrawRectangleRec(minus_x, minus_x_color);
@@ -65,19 +66,23 @@ namespace AskCropFormatLayer
 		Vector2 plus_text_size = MeasureTextEx(GetFontDefault(), "+", 30, 3.0f);
 		Vector2 minus_text_size = MeasureTextEx(GetFontDefault(), "-", 30, 3.0f);
 
-		DrawText("+", (int)plus_x.x + (int)plus_x.width / 2 - (int)plus_text_size.x / 2, (int)plus_x.y + (int)plus_x.height / 2 - (int)plus_text_size.y / 2, 30, WHITE);
-		DrawText("-", (int)minus_x.x + (int)minus_x.width / 2 - (int)minus_text_size.x / 2, (int)minus_x.y + (int)minus_x.height / 2 - (int)minus_text_size.y / 2, 30, WHITE);
+		DrawText("+", (int)plus_x.x + (int)plus_x.width / 2 - (int)plus_text_size.x / 2, (int)plus_x.y + (int)plus_x.height / 2 - (int)plus_text_size.y / 2, 30, Colors::BUTTON_TEXT);
+		DrawText("-", (int)minus_x.x + (int)minus_x.width / 2 - (int)minus_text_size.x / 2, (int)minus_x.y + (int)minus_x.height / 2 - (int)minus_text_size.y / 2, 30, Colors::BUTTON_TEXT);
 
-		DrawText("+", (int)plus_y.x + (int)plus_y.width / 2 - (int)plus_text_size.x / 2, (int)plus_y.y + (int)plus_y.height / 2 - (int)plus_text_size.y / 2, 30, WHITE);
-		DrawText("-", (int)minus_y.x + (int)minus_y.width / 2 - (int)minus_text_size.x / 2, (int)minus_y.y + (int)minus_y.height / 2 - (int)minus_text_size.y / 2, 30, WHITE);
+		DrawText("+", (int)plus_y.x + (int)plus_y.width / 2 - (int)plus_text_size.x / 2, (int)plus_y.y + (int)plus_y.height / 2 - (int)plus_text_size.y / 2, 30, Colors::BUTTON_TEXT);
+		DrawText("-", (int)minus_y.x + (int)minus_y.width / 2 - (int)minus_text_size.x / 2, (int)minus_y.y + (int)minus_y.height / 2 - (int)minus_text_size.y / 2, 30, Colors::BUTTON_TEXT);
 
 		std::string x_text = fmt::format("{}", Variables::ask_crop_dialog_result.x);
 		Vector2 x_text_size = MeasureTextEx(GetFontDefault(), x_text.c_str(), 30, 3.0f);
-		DrawText(x_text.c_str(), width / 2 - (int)x_text_size.x / 2, (int)plus_x.y + (int)plus_x.height / 2 - (int)x_text_size.y / 2, 30, WHITE);
+		DrawText(x_text.c_str(), width / 2 - (int)x_text_size.x / 2, (int)plus_x.y + (int)plus_x.height / 2 - (int)x_text_size.y / 2, 30, Colors::DIALOG_TEXT);
 
 		std::string y_text = fmt::format("{}", Variables::ask_crop_dialog_result.y);
 		Vector2 y_text_size = MeasureTextEx(GetFontDefault(), y_text.c_str(), 30, 3.0f);
-		DrawText(y_text.c_str(), width / 2 - (int)y_text_size.x / 2, (int)plus_y.y + (int)plus_y.height / 2 - (int)y_text_size.y / 2, 30, WHITE);
+		DrawText(y_text.c_str(), width / 2 - (int)y_text_size.x / 2, (int)plus_y.y + (int)plus_y.height / 2 - (int)y_text_size.y / 2, 30, Colors::DIALOG_TEXT);
+
+		std::string title_text = "Crop";
+		Vector2 title_text_size = MeasureTextEx(GetFontDefault(), title_text.c_str(), 30, 3.0f);
+		DrawText(title_text.c_str(), width / 2 - (int)title_text_size.x / 2, height / 10 - (int)title_text_size.y / 2, 30, Colors::DIALOG_TEXT);
 	}
 
 	static void OnResize(int _width, int _height)

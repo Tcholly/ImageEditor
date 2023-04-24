@@ -10,4 +10,11 @@ Colors
 
 	PIECE_OUTLINE          : color : #ffa462ff;
 	SELECTED_PIECE_OUTLINE : color : #ffb4a1ff;
+
+	BUTTON_NORMAL : color : #ff0079f1;
+	BUTTON_HOVER  : color : #ff828282;
+	BUTTON_TEXT   : color : #ffffffff;
+
+	DIALOG_BACKGROUND : color : #ff181818;
+	DIALOG_TEXT       : color : #ffffffff;
 }

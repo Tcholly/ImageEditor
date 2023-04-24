@@ -32,5 +32,10 @@ namespace Colors
 	const Color MENU_TEXT_HOVER = {250, 244, 237, 255};
 	const Color PIECE_OUTLINE = {164, 98, 255, 255};
 	const Color SELECTED_PIECE_OUTLINE = {180, 161, 255, 255};
+	const Color BUTTON_NORMAL = {0, 121, 241, 255};
+	const Color BUTTON_HOVER = {130, 130, 130, 255};
+	const Color BUTTON_TEXT = {255, 255, 255, 255};
+	const Color DIALOG_BACKGROUND = {24, 24, 24, 255};
+	const Color DIALOG_TEXT = {255, 255, 255, 255};
 } // namespace Colors
 
