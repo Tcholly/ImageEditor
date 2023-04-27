@@ -20,6 +20,7 @@
 
 #include "Globals.hpp"
 #include "Variables.h"
+#include "Utils/ConsoleLog.h"
 
 #include "Layers/AskConfirmLayer.h"
 #include "Layers/AskCropFormatLayer.h"
@@ -76,6 +77,38 @@ namespace EditorScreen
 
 	static std::vector<MenuItem> menu;
 
+	static ConsoleLog console_log;
+	static void Log(Logger::LogLevel level, std::string message)
+	{
+		Color color;
+
+		switch (level) 
+		{
+			case Logger::LogLevel::LOG_LEVEL_DEBUG:
+				color = GRAY;
+				break;
+
+			case Logger::LogLevel::LOG_LEVEL_INFO:
+				color = GREEN;
+				break;
+
+			case Logger::LogLevel::LOG_LEVEL_WARNING:
+				color = ORANGE;
+				break;
+		
+			case Logger::LogLevel::LOG_LEVEL_ERROR:
+				color = RED;
+				break;
+
+			default:
+				color = VIOLET;
+				LOG_WARN("UNREACHABLE: log level is unknown: {}", (int)level);
+				break;
+		}
+
+		console_log.Print(message, color);
+	}
+
 	void Load()
 	{
 		SetTargetFPS(60);
@@ -106,6 +139,9 @@ namespace EditorScreen
 		ask_crop_format_layer = AskCropFormatLayer::GetLayer();
 		ask_crop_format_layer.Load();
 
+		console_log.Load({0.0f, 0.0f, 1.0f, 1.0f}, 5.0f);
+		Logger::Bind(&Log);
+
 		NFD::Init();
 	}
 
@@ -114,6 +150,7 @@ namespace EditorScreen
 		UnloadTexture(image);
 		ask_confirm_layer.Unload();
 		ask_crop_format_layer.Unload();
+		console_log.Unload();
 		NFD::Quit();
 	}
 
@@ -293,13 +330,13 @@ namespace EditorScreen
 				{
 					if (selected_piece < 0)
 					{
-						LOG_WARN("No piece selected");
+						Logger::Warn("No piece selected");
 						break;
 					}
 
 					if (!IsTextureReady(image))
 					{
-						LOG_WARN("No image loaded");
+						Logger::Warn("No image loaded");
 						break;
 					}
 
@@ -323,9 +360,13 @@ namespace EditorScreen
 						ExportImage(out_image, path.c_str());
 						UnloadImage(out_image);
 						UnloadRenderTexture(out_texture);
+
+						Logger::Info("Piece saved successfully as '{}'", path);
 					}
 					else if (result != NFD_CANCEL)
+					{
         				LOG_ERROR(NFD::GetError());
+					}
 				}
 				break;
 
@@ -342,7 +383,9 @@ namespace EditorScreen
 						LoadFile(path);
 					}
 					else if (result != NFD_CANCEL)
+					{
         				LOG_ERROR(NFD::GetError());
+					}
 				}
 				break;
 
@@ -354,13 +397,13 @@ namespace EditorScreen
 				{
 					if (pieces.size() < 1)
 					{
-						LOG_WARN("No image loaded");
+						Logger::Warn("No image loaded");
 						break;
 					}
 
 					if (selected_piece < 0)
 					{
-						LOG_WARN("No piece selected");
+						Logger::Warn("No piece selected");
 						break;
 					}
 					ask_crop = true;
@@ -508,13 +551,13 @@ namespace EditorScreen
 	{
 		if (x_times < 1 || y_times < 1)
 		{
-			LOG_ERROR("Crop failed: values must be both greater than 0: x = {}, y = {}", x_times, y_times);
+			Logger::Error("Crop failed: values must be both greater than 0: x = {}, y = {}", x_times, y_times);
 			return false;
 		}
 
 		if (x_times == 1 && y_times == 1)
 		{
-			LOG_WARN("Crop not done: values are both 1 so it is useless to crop");
+			Logger::Warn("Crop not done: values are both 1 so it is useless to crop");
 			return false;
 		}
 
@@ -660,13 +703,12 @@ namespace EditorScreen
 				ask_crop = false;
 				if (Variables::ask_confirm_dialog_result)
 				{
-					if (Variables::ask_crop_dialog_result.x == 0 || Variables::ask_crop_dialog_result.y == 0 || (Variables::ask_crop_dialog_result.x == 1 && Variables::ask_crop_dialog_result.y == 1))
+					if (Variables::ask_crop_dialog_result.x == 0 || Variables::ask_crop_dialog_result.y == 0)
 					{
-						LOG_WARN("Please crop using values that make sense (not x = {} and y = {})", Variables::ask_crop_dialog_result.x, Variables::ask_crop_dialog_result.y);
+						Logger::Warn("Please crop using values that make sense (not x = {} and y = {})", Variables::ask_crop_dialog_result.x, Variables::ask_crop_dialog_result.y);
 					}
 					else
 					{
-						// TODO: Crop piece
 						if (CropPiece(crop_piece, Variables::ask_crop_dialog_result.x, Variables::ask_crop_dialog_result.y))
 							pieces.erase(pieces.begin() + crop_piece);
 					}
@@ -677,6 +719,7 @@ namespace EditorScreen
 		}
 
 		previous_mouse_pos = mouse_pos;
+		console_log.Update(dt);
 	}
 
 	void DrawMenu()
@@ -790,6 +833,8 @@ namespace EditorScreen
 		int zoom_info_width = MeasureText(zoom_info.c_str(), 20);
 		DrawText(zoom_info.c_str(), window_size.x - zoom_info_width - 5, window_size.y - 20, 20, Colors::MENU_TEXT);
 
+		console_log.Render(false, true);
+
 		DrawFPS(5, GetScreenHeight() - 21 - 30);
 
 	}
@@ -807,6 +852,8 @@ namespace EditorScreen
 		ask_crop_format_layer.x = 20;
 		ask_crop_format_layer.y = 100;
 		ask_crop_format_layer.Resize(240, 200);
+
+		console_log.SetDestinationBounds({10.0f, 25.0f, width - 20.0f, height - 50.0f});
 	}
 
 	Screen GetScreen()
