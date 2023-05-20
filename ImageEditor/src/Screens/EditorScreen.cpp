@@ -174,6 +174,8 @@ namespace EditorScreen
 		selected_piece = -1;
 		combine_pieces = {-1, -1};
 		crop_piece = -1;
+
+		Logger::Info("Loaded file: {}", filepath);
 	}
 
 	static SubMenuType GetPressedMenuItem()
@@ -490,7 +492,7 @@ namespace EditorScreen
 			snap_rects[GetCollidingArea(second_bounds, rect_lt)] = rect_lt;
 
 			float max_area = 0.0f;
-			Rectangle final_rect;
+			Rectangle final_rect = { 0.0f, 0.0f, 0.0f, 0.0f };
 			for (auto& [area, rect] : snap_rects)
 			{
 				if (area > max_area)
